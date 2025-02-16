@@ -18,54 +18,62 @@
   <script>
     let font;
     let upperChar, lowerChar;
-    let upperTempo = 320; // Adjustable tempo for the upper character (in milliseconds)
-    let lowerTempo = 300; // Adjustable tempo for the lower character (in milliseconds)
+    let upperTempo = 320; // Tempo for upper character (ms)
+    let lowerTempo = 300; // Tempo for lower character (ms)
     let lastUpperChange = 0;
     let lastLowerChange = 0;
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Alphabet and numbers
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     function preload() {
-      // Load your font (ensure the font is located in the "assets" folder)
+      // Load the font (ensure it exists in the "assets" folder)
       font = loadFont("assets/Combine.otf");
     }
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
       textAlign(CENTER, CENTER);
-      upperChar = chars.charAt(int(random(chars.length))); // Random initial upper character
-      lowerChar = chars.charAt(int(random(chars.length))); // Random initial lower character
+      textFont(font);
+      textSize(350);
+      // Initialize with random characters
+      upperChar = randomChar();
+      lowerChar = randomChar();
     }
 
     function draw() {
       background(255); // White background
+      fill(0);         // Black text
 
-      fill(0); // Black text
-      textFont(font); // Use the loaded font
-      textSize(350);
-
-      // Update the upper character if it's time
-      if (millis() - lastUpperChange > upperTempo) {
-        upperChar = chars.charAt(int(random(chars.length)));
-        lastUpperChange = millis();
+      const now = millis();
+      // Update upper character based on tempo
+      if (now - lastUpperChange > upperTempo) {
+        upperChar = randomChar();
+        lastUpperChange = now;
+      }
+      // Update lower character based on tempo
+      if (now - lastLowerChange > lowerTempo) {
+        lowerChar = randomChar();
+        lastLowerChange = now;
       }
 
-      // Update the lower character if it's time
-      if (millis() - lastLowerChange > lowerTempo) {
-        lowerChar = chars.charAt(int(random(chars.length)));
-        lastLowerChange = millis();
-      }
+      const centerX = width / 2;
+      const centerY = height / 2;
 
-      // Display the upper character (only the top half)
+      // Display upper character (shifted upward)
       push();
-      translate(0, -height / 4); // Shift upwards to focus on the upper half
-      text(upperChar, width / 2, height / 2);
+        translate(0, -height / 4);
+        text(upperChar, centerX, centerY);
       pop();
 
-      // Display the lower character (only the bottom half)
+      // Display lower character (shifted downward)
       push();
-      translate(0, height / 4); // Shift downwards to focus on the bottom half
-      text(lowerChar, width / 2, height / 2);
+        translate(0, height / 4);
+        text(lowerChar, centerX, centerY);
       pop();
+    }
+
+    // Helper function to get a random character
+    function randomChar() {
+      return chars.charAt(int(random(chars.length)));
     }
 
     function windowResized() {
