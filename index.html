@@ -2,30 +2,25 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>CB Half Typography Generator</title>
+  <title>CB Half Typography Random Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-    }
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
   </style>
 </head>
 <body>
   <script>
     let font;
     let upperChar, lowerChar;
-    let upperTempo = 320; // Tempo for upper character (ms)
-    let lowerTempo = 300; // Tempo for lower character (ms)
+    let upperTempo = 320; // Tempo (ms) for updating the top half
+    let lowerTempo = 300; // Tempo (ms) for updating the bottom half
     let lastUpperChange = 0;
     let lastLowerChange = 0;
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Characters set
 
     function preload() {
-      // Load the font (ensure it exists in the "assets" folder)
+      // Ensure the font is available in the assets folder
       font = loadFont("assets/Combine.otf");
     }
 
@@ -44,34 +39,35 @@
       fill(0);         // Black text
 
       const now = millis();
-      // Update upper character based on tempo
+      // Update the top half letter if enough time has passed
       if (now - lastUpperChange > upperTempo) {
         upperChar = randomChar();
         lastUpperChange = now;
       }
-      // Update lower character based on tempo
+      // Update the bottom half letter if enough time has passed
       if (now - lastLowerChange > lowerTempo) {
         lowerChar = randomChar();
         lastLowerChange = now;
       }
 
-      const centerX = width / 2;
-      const centerY = height / 2;
-
-      // Display upper character (shifted upward)
+      // Draw the top half from upperChar
       push();
-        translate(0, -height / 4);
-        text(upperChar, centerX, centerY);
+        // Clip to the top half of the canvas
+        clip(0, 0, width, height/2);
+        // Draw the letter centered on the canvas
+        text(upperChar, width / 2, height / 2);
       pop();
 
-      // Display lower character (shifted downward)
+      // Draw the bottom half from lowerChar
       push();
-        translate(0, height / 4);
-        text(lowerChar, centerX, centerY);
+        // Clip to the bottom half of the canvas
+        clip(0, height / 2, width, height / 2);
+        // Draw the letter centered on the canvas
+        text(lowerChar, width / 2, height / 2);
       pop();
     }
 
-    // Helper function to get a random character
+    // Helper function to return a random character from chars
     function randomChar() {
       return chars.charAt(int(random(chars.length)));
     }
