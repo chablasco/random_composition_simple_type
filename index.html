@@ -21,9 +21,11 @@ const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 // Offscreen graphics buffers for the two halves
 let upperG, lowerG;
+// Adjust this offset to shift the lower half further down:
+let lowerOffset = 20; // You can tweak this value for fine tuning
 
 function preload() {
-  // Load your font (ensure the file exists in the assets folder)
+  // Load the font (ensure "assets/Combine.otf" exists)
   font = loadFont("assets/Combine.otf");
 }
 
@@ -55,24 +57,23 @@ function draw() {
     lastLowerChange = now;
   }
 
-  // Update the offscreen graphics for the upper letter
+  // Draw the upper letter normally (centered)
   upperG.background(255);
   upperG.fill(0);
   upperG.text(upperChar, width / 2, height / 2);
 
-  // Update the offscreen graphics for the lower letter
+  // Draw the lower letter shifted down by lowerOffset
   lowerG.background(255);
   lowerG.fill(0);
-  lowerG.text(lowerChar, width / 2, height / 2);
+  lowerG.text(lowerChar, width / 2, height / 2 + lowerOffset);
 
-  // Copy the top half of the upper letter graphics to the main canvas
+  // Copy the top half of the upper letter to the main canvas
   copy(upperG, 0, 0, width, height / 2, 0, 0, width, height / 2);
 
-  // Copy the bottom half of the lower letter graphics to the main canvas
+  // Copy the bottom half of the lower letter to the main canvas
   copy(lowerG, 0, height / 2, width, height / 2, 0, height / 2, width, height / 2);
 }
 
-// Helper to set common text properties for a p5.Graphics buffer
 function setupGraphics(pg) {
   pg.textAlign(CENTER, CENTER);
   pg.textFont(font);
