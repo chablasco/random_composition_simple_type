@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CB Half Typography Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let font;
+    let upperChar, lowerChar;
+    let upperTempo = 320; // Adjustable tempo for the upper character (in milliseconds)
+    let lowerTempo = 300; // Adjustable tempo for the lower character (in milliseconds)
+    let lastUpperChange = 0;
+    let lastLowerChange = 0;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Alphabet and numbers
+
+    function preload() {
+      // Load your font (ensure the font is located in the "assets" folder)
+      font = loadFont("assets/Combine.otf");
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      textAlign(CENTER, CENTER);
+      upperChar = chars.charAt(int(random(chars.length))); // Random initial upper character
+      lowerChar = chars.charAt(int(random(chars.length))); // Random initial lower character
+    }
+
+    function draw() {
+      background(255); // White background
+
+      fill(0); // Black text
+      textFont(font); // Use the loaded font
+      textSize(350);
+
+      // Update the upper character if it's time
+      if (millis() - lastUpperChange > upperTempo) {
+        upperChar = chars.charAt(int(random(chars.length)));
+        lastUpperChange = millis();
+      }
+
+      // Update the lower character if it's time
+      if (millis() - lastLowerChange > lowerTempo) {
+        lowerChar = chars.charAt(int(random(chars.length)));
+        lastLowerChange = millis();
+      }
+
+      // Display the upper character (only the top half)
+      push();
+      translate(0, -height / 4); // Shift upwards to focus on the upper half
+      text(upperChar, width / 2, height / 2);
+      pop();
+
+      // Display the lower character (only the bottom half)
+      push();
+      translate(0, height / 4); // Shift downwards to focus on the bottom half
+      text(lowerChar, width / 2, height / 2);
+      pop();
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+</body>
+</html>
