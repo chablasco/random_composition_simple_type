@@ -21,8 +21,8 @@ const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 // Offscreen graphics buffers for the two halves
 let upperG, lowerG;
-// Adjust this offset to shift the lower half further down:
-let lowerOffset = 50; // You can tweak this value for fine tuning
+// Set lowerOffset to 0 so that both halves are drawn centered at the same spot.
+let lowerOffset = 0;
 
 function preload() {
   // Load the font (ensure "assets/Combine.otf" exists)
@@ -46,7 +46,7 @@ function setup() {
 
 function draw() {
   background(255); // White background
-
+  
   const now = millis();
   if (now - lastUpperChange > upperTempo) {
     upperChar = randomChar();
@@ -56,22 +56,21 @@ function draw() {
     lowerChar = randomChar();
     lastLowerChange = now;
   }
+  
+  // Update both offscreen buffers at the same centered position
+  updateGraphics(upperG, upperChar, 0);
+  updateGraphics(lowerG, lowerChar, lowerOffset);
+  
+  // Copy the top half from the upper buffer and the bottom half from the lower buffer
+  copy(upperG, 0, 0, width, height/2, 0, 0, width, height/2);
+  copy(lowerG, 0, height/2, width, height/2, 0, height/2, width, height/2);
+}
 
-  // Draw the upper letter normally (centered)
-  upperG.background(255);
-  upperG.fill(0);
-  upperG.text(upperChar, width / 2, height / 2);
-
-  // Draw the lower letter shifted down by lowerOffset
-  lowerG.background(255);
-  lowerG.fill(0);
-  lowerG.text(lowerChar, width / 2, height / 2 + lowerOffset);
-
-  // Copy the top half of the upper letter to the main canvas
-  copy(upperG, 0, 0, width, height / 2, 0, 0, width, height / 2);
-
-  // Copy the bottom half of the lower letter to the main canvas
-  copy(lowerG, 0, height / 2, width, height / 2, 0, height / 2, width, height / 2);
+function updateGraphics(pg, char, offset) {
+  pg.background(255);
+  pg.fill(0);
+  // Draw the letter with its center at (width/2, height/2 + offset)
+  pg.text(char, width / 2, height / 2 + offset);
 }
 
 function setupGraphics(pg) {
@@ -86,7 +85,7 @@ function randomChar() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  // Recreate the offscreen graphics buffers with new dimensions
+  // Recreate offscreen graphics buffers with new dimensions
   upperG = createGraphics(windowWidth, windowHeight);
   lowerG = createGraphics(windowWidth, windowHeight);
   setupGraphics(upperG);
