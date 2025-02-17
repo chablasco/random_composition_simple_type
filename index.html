@@ -21,8 +21,8 @@ const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 // Offscreen graphics buffers for the two halves
 let upperG, lowerG;
-// Set lowerOffset to 0 so that both halves are drawn centered at the same spot.
-let lowerOffset = 0;
+// This offset is computed so that when drawing with BASELINE alignment the text’s center lands at canvas center.
+let baselineOffset = 0;
 
 function preload() {
   // Load the font (ensure "assets/Combine.otf" exists)
@@ -31,15 +31,22 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  textAlign(CENTER, CENTER);
-
-  // Create offscreen graphics buffers matching the canvas size
+  
+  // Set text properties on the main canvas for metric calculations.
+  textFont(font);
+  textSize(350);
+  // When using BASELINE alignment, the center of the text bounding box lies at:
+  // baseline - (textAscent() - textDescent())/2.
+  // To have that center exactly at height/2, the baseline should be at height/2 + (textAscent()-textDescent())/2.
+  baselineOffset = (textAscent() - textDescent()) / 2;
+  
+  // Create offscreen graphics buffers with the same dimensions as the canvas.
   upperG = createGraphics(windowWidth, windowHeight);
   lowerG = createGraphics(windowWidth, windowHeight);
   setupGraphics(upperG);
   setupGraphics(lowerG);
-
-  // Initialize with random letters
+  
+  // Initialize with random characters.
   upperChar = randomChar();
   lowerChar = randomChar();
 }
@@ -57,26 +64,32 @@ function draw() {
     lastLowerChange = now;
   }
   
-  // Update both offscreen buffers at the same centered position
-  updateGraphics(upperG, upperChar, 0);
-  updateGraphics(lowerG, lowerChar, lowerOffset);
+  // Update offscreen buffers. Each letter is drawn so that its visual center (using BASELINE alignment)
+  // falls exactly at (width/2, height/2).
+  updateGraphics(upperG, upperChar);
+  updateGraphics(lowerG, lowerChar);
   
-  // Copy the top half from the upper buffer and the bottom half from the lower buffer
+  // Composite halves:
+  // - From upperG, copy the top half of the canvas.
+  // - From lowerG, copy the bottom half.
   copy(upperG, 0, 0, width, height/2, 0, 0, width, height/2);
   copy(lowerG, 0, height/2, width, height/2, 0, height/2, width, height/2);
 }
 
-function updateGraphics(pg, char, offset) {
+function updateGraphics(pg, char) {
   pg.background(255);
   pg.fill(0);
-  // Draw the letter with its center at (width/2, height/2 + offset)
-  pg.text(char, width / 2, height / 2 + offset);
+  // Use BASELINE alignment so we can position the text precisely.
+  // By setting the baseline at (height/2 + baselineOffset), the text’s visual center
+  // (which is baseline - (textAscent()-textDescent())/2) lands at height/2.
+  pg.textAlign(CENTER, BASELINE);
+  pg.text(char, width / 2, height / 2 + baselineOffset);
 }
 
 function setupGraphics(pg) {
-  pg.textAlign(CENTER, CENTER);
   pg.textFont(font);
   pg.textSize(350);
+  pg.textAlign(CENTER, BASELINE);
 }
 
 function randomChar() {
@@ -85,7 +98,7 @@ function randomChar() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  // Recreate offscreen graphics buffers with new dimensions
+  // Recreate offscreen buffers for the new dimensions.
   upperG = createGraphics(windowWidth, windowHeight);
   lowerG = createGraphics(windowWidth, windowHeight);
   setupGraphics(upperG);
